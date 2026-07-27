@@ -12,9 +12,80 @@
   <script>
     // Per-frame rotation — no loop reset, zero jitter
     AFRAME.registerComponent('smooth-rotate', {
-      schema: { speed: { type: 'number', default: 30 } }, // degrees/sec
+      schema: { speed: { type: 'number', default: 30 } },
       tick: function(time, delta) {
         this.el.object3D.rotation.y += (this.data.speed * delta / 1000) * (Math.PI / 180);
+      }
+    });
+
+    // Sunway Pyramid Egyptian lion/sphinx head built from Three.js geometry
+    AFRAME.registerComponent('lion-head', {
+      init: function() {
+        const G = this.el.object3D;
+        const gold     = new THREE.MeshStandardMaterial({ color: 0xC9A84C, metalness: 0.75, roughness: 0.25 });
+        const darkGold = new THREE.MeshStandardMaterial({ color: 0x8B6210, metalness: 0.55, roughness: 0.45 });
+        const bright   = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.95, roughness: 0.05 });
+        const dark     = new THREE.MeshStandardMaterial({ color: 0x100800, metalness: 0.1,  roughness: 0.9  });
+        const ivory    = new THREE.MeshStandardMaterial({ color: 0xFFF5CC, emissive: 0x221100, emissiveIntensity: 0.2 });
+
+        const box = (w, h, d, x, y, z, mat, rx=0, ry=0, rz=0) => {
+          const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+          m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.castShadow = true; G.add(m);
+        };
+
+        // ── NEMES HEADDRESS ──────────────────────────────────────────────
+        box(0.95, 0.20, 0.88,  0,     0.46, -0.02, gold);          // top crown
+        box(0.20, 0.62, 0.24, -0.47,  0.07,  0.08, darkGold);     // left lappet
+        box(0.20, 0.62, 0.24,  0.47,  0.07,  0.08, darkGold);     // right lappet
+        box(0.90, 0.52, 0.14,  0,     0.15, -0.40, darkGold);     // back drape
+        // Nemes stripe details
+        for (let i = 0; i < 4; i++) {
+          const y = 0.34 - i * 0.1;
+          box(0.90, 0.025, 0.88, 0, y, -0.02, darkGold);
+        }
+
+        // ── MAIN HEAD BLOCK ───────────────────────────────────────────────
+        box(0.74, 0.92, 0.64,  0,    -0.02,  0.00, gold);
+
+        // ── BROW & FOREHEAD ───────────────────────────────────────────────
+        box(0.65, 0.10, 0.12,  0,     0.23,  0.31, darkGold);     // brow ridge
+
+        // ── EYES (elongated Egyptian style) ──────────────────────────────
+        box(0.24, 0.075, 0.075, -0.165, 0.125, 0.335, dark);      // left eye
+        box(0.24, 0.075, 0.075,  0.165, 0.125, 0.335, dark);      // right eye
+        box(0.10, 0.048, 0.042, -0.15,  0.128, 0.365, ivory);     // left iris/white
+        box(0.10, 0.048, 0.042,  0.15,  0.128, 0.365, ivory);     // right iris/white
+        // Kohl lines extending outward (Egyptian hallmark)
+        box(0.09, 0.025, 0.038, -0.315, 0.108, 0.335, dark);
+        box(0.09, 0.025, 0.038,  0.315, 0.108, 0.335, dark);
+
+        // ── NOSE ─────────────────────────────────────────────────────────
+        box(0.12, 0.14, 0.06,   0,     0.04,  0.345, darkGold);   // bridge
+        box(0.22, 0.16, 0.15,   0,    -0.06,  0.36,  gold);       // nose body
+        box(0.055, 0.045, 0.06,-0.09, -0.105, 0.36,  dark);       // left nostril
+        box(0.055, 0.045, 0.06, 0.09, -0.105, 0.36,  dark);       // right nostril
+
+        // ── MOUTH & LIPS ─────────────────────────────────────────────────
+        box(0.06, 0.075, 0.065,  0,    -0.175, 0.345, darkGold);  // philtrum
+        box(0.38, 0.06,  0.085,  0,    -0.23,  0.335, gold);      // upper lip
+        box(0.32, 0.036, 0.06,   0,    -0.265, 0.334, dark);      // mouth line
+        box(0.35, 0.075, 0.095,  0,    -0.305, 0.325, gold);      // lower lip
+        box(0.32, 0.11,  0.10,   0,    -0.39,  0.285, darkGold);  // chin
+
+        // ── CHEEKBONES ───────────────────────────────────────────────────
+        box(0.09, 0.16, 0.12, -0.40,  0.04, 0.29, gold);
+        box(0.09, 0.16, 0.12,  0.40,  0.04, 0.29, gold);
+
+        // ── NECK ─────────────────────────────────────────────────────────
+        box(0.52, 0.20, 0.50, 0, -0.52, 0, gold);
+
+        // ── ROYAL BEARD (angled pharaoh beard) ───────────────────────────
+        box(0.19, 0.38, 0.14,  0, -0.60, 0.22, darkGold, 0.18, 0, 0);
+        box(0.13, 0.11, 0.10,  0, -0.80, 0.16, darkGold, 0.22, 0, 0);
+
+        // ── URAEUS (cobra on forehead) ────────────────────────────────────
+        box(0.07, 0.16, 0.07,  0,  0.40, 0.36, bright);           // cobra body
+        box(0.13, 0.08, 0.05,  0,  0.51, 0.38, bright);           // cobra hood
       }
     });
   </script>
@@ -113,41 +184,35 @@
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
   >
-    <a-assets>
-      <a-asset-item id="helmet" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"></a-asset-item>
-    </a-assets>
-
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <!-- AR target: appears over the QR code -->
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <!-- 3D Model -->
-      <a-gltf-model
-        src="#helmet"
-        position="0 0 0"
-        scale="0.8 0.8 0.8"
-        rotation="0 0 0"
-        shadow="cast: true"
-        smooth-rotate="speed: 30"
-        animation__scale="property: scale; dir: alternate; dur: 3500; easing: easeInOutSine; loop: true; to: 0.88 0.88 0.88"
-      ></a-gltf-model>
-
-      <!-- Key light -->
-      <a-light type="directional" color="#ffffff" intensity="2.0" position="2 4 3" shadow="cast: true"></a-light>
-      <!-- Fill light -->
-      <a-light type="directional" color="#e0e0e0" intensity="1.2" position="-2 4 -3" shadow="cast: true"></a-light>
-      <!-- Back light -->
-      <a-light type="spot" color="#ffffff" intensity="0.7" position="0 6 -5" angle="45" shadow="cast: true"></a-light>
-      <!-- Ambient -->
-      <a-light type="ambient" color="#d3d3d3" intensity="0.8"></a-light>
-
-      <!-- Floating glow orb -->
+      <!-- Lion head -->
       <a-entity
-        geometry="primitive: sphere; radius: 0.05"
-        material="color: #4DA8FF; emissive: #4DA8FF; emissiveIntensity: 1"
-        position="0 0.38 0"
-        animation="property: position; to: 0 0.48 0; dur: 1500; dir: alternate; loop: true; easing: easeInOutSine"
+        lion-head
+        position="0 0.05 0"
+        scale="0.42 0.42 0.42"
+        smooth-rotate="speed: 28"
+        animation__bob="property: position; from: 0 0.05 0; to: 0 0.1 0; dir: alternate; dur: 2400; easing: easeInOutSine; loop: true"
+      ></a-entity>
+
+      <!-- Warm golden key light -->
+      <a-light type="directional" color="#FFF4CC" intensity="2.2" position="2 4 3" shadow="cast: true"></a-light>
+      <!-- Fill light -->
+      <a-light type="directional" color="#FFE8A0" intensity="1.0" position="-2 3 -2" shadow="cast: true"></a-light>
+      <!-- Rim light for depth -->
+      <a-light type="spot" color="#ffffff" intensity="0.8" position="0 5 -4" angle="40" shadow="cast: true"></a-light>
+      <!-- Warm ambient -->
+      <a-light type="ambient" color="#C8A870" intensity="0.7"></a-light>
+
+      <!-- Floating gold orb -->
+      <a-entity
+        geometry="primitive: sphere; radius: 0.04"
+        material="color: #FFD700; emissive: #FFD700; emissiveIntensity: 1"
+        position="0 0.6 0"
+        animation="property: position; to: 0 0.72 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine"
       ></a-entity>
 
     </a-entity>
