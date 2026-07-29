@@ -303,6 +303,15 @@
 
     .mindar-ui-scanning .scanline { background: #754c24; }
 
+    #voucher-tap-area {
+      position: fixed;
+      inset: 0;
+      z-index: 150; /* above AR canvas, below toggle (200) and success screen (9999) */
+      display: none;
+      cursor: pointer;
+    }
+    #voucher-tap-area.active { display: block; }
+
     #mode-toggle {
       position: fixed;
       bottom: 36px;
@@ -412,6 +421,9 @@
     <button id="btn-lion"    class="mode-btn active" onclick="setARMode('lion')">Lion Head</button>
     <button id="btn-voucher" class="mode-btn"         onclick="setARMode('voucher')">Voucher</button>
   </div>
+
+  <!-- Transparent tap catcher — active in voucher mode so any tap on the card claims it -->
+  <div id="voucher-tap-area"></div>
 
   <!-- Voucher claimed success screen -->
   <div id="voucher-success">
@@ -528,6 +540,7 @@
       document.getElementById('voucher-group').setAttribute('visible', mode === 'voucher');
       document.getElementById('btn-lion').classList.toggle('active', mode === 'lion');
       document.getElementById('btn-voucher').classList.toggle('active', mode === 'voucher');
+      document.getElementById('voucher-tap-area').classList.toggle('active', mode === 'voucher');
     }
 
     function closeVoucher() {
@@ -538,7 +551,6 @@
       const scene = document.getElementById('ar-scene');
       const toggle = document.getElementById('mode-toggle');
 
-      // Show toggle + hide scan hint when target locked
       scene.addEventListener('targetFound', () => {
         document.getElementById('scan-hint').style.display = 'none';
         toggle.classList.add('visible');
@@ -546,15 +558,11 @@
       scene.addEventListener('targetLost', () => {
         document.getElementById('scan-hint').style.display = 'block';
         toggle.classList.remove('visible');
+        setARMode('lion'); // reset to lion when QR lost
       });
 
-      // Voucher tap → success screen
-      scene.addEventListener('loaded', () => {
-        document.querySelectorAll('.tappable').forEach(el => {
-          el.addEventListener('click', () => {
-            document.getElementById('voucher-success').classList.add('show');
-          });
-        });
+      document.getElementById('voucher-tap-area').addEventListener('click', () => {
+        document.getElementById('voucher-success').classList.add('show');
       });
     });
   </script>
