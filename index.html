@@ -10,12 +10,62 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <script>
-    // Per-frame rotation — no loop reset, zero jitter
+    // Auto-rotate + swipe-to-spin with momentum
     AFRAME.registerComponent('smooth-rotate', {
-      schema: { speed: { type: 'number', default: 30 } },
-      tick: function(time, delta) {
-        this.el.object3D.rotation.y += (this.data.speed * delta / 1000) * (Math.PI / 180);
-      }
+      schema: {
+        speed:       { type: 'number', default: 30 },   // auto-rotate deg/s
+        sensitivity: { type: 'number', default: 0.45 }  // deg per pixel swiped
+      },
+      init: function () {
+        this.dragging  = false;
+        this.lastX     = 0;
+        this.velocity  = 0; // deg/frame from swipe momentum
+
+        const onStart = (e) => {
+          const x = e.touches ? e.touches[0].clientX : e.clientX;
+          this.dragging = true;
+          this.lastX    = x;
+          this.velocity = 0;
+        };
+        const onMove = (e) => {
+          if (!this.dragging) return;
+          const x   = e.touches ? e.touches[0].clientX : e.clientX;
+          const dx  = x - this.lastX;
+          this.velocity = dx * this.data.sensitivity;
+          this.el.object3D.rotation.y += this.velocity * (Math.PI / 180);
+          this.lastX = x;
+        };
+        const onEnd = () => { this.dragging = false; };
+
+        window.addEventListener('touchstart', onStart, { passive: true });
+        window.addEventListener('touchmove',  onMove,  { passive: true });
+        window.addEventListener('touchend',   onEnd,   { passive: true });
+        window.addEventListener('mousedown',  onStart);
+        window.addEventListener('mousemove',  onMove);
+        window.addEventListener('mouseup',    onEnd);
+
+        this._cleanup = () => {
+          window.removeEventListener('touchstart', onStart);
+          window.removeEventListener('touchmove',  onMove);
+          window.removeEventListener('touchend',   onEnd);
+          window.removeEventListener('mousedown',  onStart);
+          window.removeEventListener('mousemove',  onMove);
+          window.removeEventListener('mouseup',    onEnd);
+        };
+      },
+      tick: function (time, delta) {
+        if (this.dragging) return;
+        if (Math.abs(this.velocity) > 0.05) {
+          // coast with friction until momentum fades
+          this.el.object3D.rotation.y += this.velocity * (Math.PI / 180);
+          this.velocity *= 0.90;
+        } else {
+          // resume gentle auto-rotation
+          this.velocity = 0;
+          this.el.object3D.rotation.y += (this.data.speed * delta / 1000) * (Math.PI / 180);
+        }
+      },
+      remove: function () { this._cleanup && this._cleanup(); }
     });
 
     // Draws a clean pastel voucher card and applies it as a flat texture
