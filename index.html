@@ -25,15 +25,21 @@
         this.clipPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
         this._pt = new THREE.Vector3();
         this.applied = false;
-        this.el.addEventListener('model-loaded', () => {
+        const setup = () => {
           this.el.sceneEl.renderer.localClippingEnabled = true;
           this.el.object3D.traverse(node => {
             if (!node.isMesh) return;
             const mats = Array.isArray(node.material) ? node.material : [node.material];
-            mats.forEach(m => { m.clippingPlanes = [this.clipPlane]; m.needsUpdate = true; });
+            mats.forEach(m => { m.clippingPlanes = [this.clipPlane]; m.clipShadows = true; m.needsUpdate = true; });
           });
           this.applied = true;
-        });
+        };
+        // Handle both: model already loaded (cached) and not yet loaded
+        if (this.el.getObject3D('mesh')) {
+          setup();
+        } else {
+          this.el.addEventListener('model-loaded', setup, { once: true });
+        }
       },
       tick: function () {
         if (!this.applied) return;
