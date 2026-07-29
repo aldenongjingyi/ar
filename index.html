@@ -18,7 +18,7 @@
       }
     });
 
-    // Draws a voucher card onto a canvas and applies it as a flat texture
+    // Draws a clean pastel voucher card and applies it as a flat texture
     AFRAME.registerComponent('voucher-texture', {
       init: function () {
         const W = 1024, H = 512;
@@ -26,54 +26,52 @@
         canvas.width = W; canvas.height = H;
         const ctx = canvas.getContext('2d');
 
-        // Background
-        const bg = ctx.createLinearGradient(0, 0, W, H);
-        bg.addColorStop(0, '#0d0d22'); bg.addColorStop(1, '#110d00');
-        ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+        // Soft warm white background
+        ctx.fillStyle = '#FDFAF5';
+        ctx.fillRect(0, 0, W, H);
 
-        // Gold outer border
-        ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 8;
-        ctx.strokeRect(4, 4, W - 8, H - 8);
+        // Subtle warm border
+        ctx.strokeStyle = '#C9A96E'; ctx.lineWidth = 5;
+        ctx.strokeRect(3, 3, W - 6, H - 6);
 
-        // Top gold bar
-        const barGrad = ctx.createLinearGradient(0, 0, W, 0);
-        barGrad.addColorStop(0, '#7a5000'); barGrad.addColorStop(0.5, '#FFD700'); barGrad.addColorStop(1, '#7a5000');
-        ctx.fillStyle = barGrad; ctx.fillRect(4, 4, W - 8, 52);
+        // Top accent bar — soft tan
+        ctx.fillStyle = '#E8D5B0';
+        ctx.fillRect(3, 3, W - 6, 60);
 
-        // Header in bar
-        ctx.fillStyle = '#1a1000'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
-        ctx.fillText('MAP72  ×  SUNWAY PYRAMID', W / 2, 40);
+        // Header
+        ctx.fillStyle = '#7A5C2E'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('MAP72  ×  SUNWAY PYRAMID', W / 2, 42);
 
-        // Divider
-        ctx.strokeStyle = 'rgba(255,215,0,0.3)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(50, 70); ctx.lineTo(W - 50, 70); ctx.stroke();
+        // Thin divider
+        ctx.strokeStyle = '#D4B896'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(60, 78); ctx.lineTo(W - 60, 78); ctx.stroke();
 
-        // Exclusive label
-        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 20px Arial';
-        ctx.fillText('✦   E X C L U S I V E   O F F E R   ✦', W / 2, 105);
+        // Offer label
+        ctx.fillStyle = '#A07840'; ctx.font = '500 18px Arial';
+        ctx.fillText('E X C L U S I V E   O F F E R', W / 2, 110);
 
-        // Big discount
-        ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 210px Arial'; ctx.textAlign = 'right';
-        ctx.fillText('20%', 570, 310);
-        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 100px Arial'; ctx.textAlign = 'left';
-        ctx.fillText('OFF', 600, 285);
+        // Big soft discount text
+        ctx.fillStyle = '#3D2B10'; ctx.font = 'bold 190px Arial'; ctx.textAlign = 'right';
+        ctx.fillText('20%', 590, 315);
+        ctx.fillStyle = '#C9A96E'; ctx.font = 'bold 90px Arial'; ctx.textAlign = 'left';
+        ctx.fillText('OFF', 615, 295);
 
         // Divider 2
-        ctx.strokeStyle = 'rgba(255,215,0,0.3)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(50, 335); ctx.lineTo(W - 50, 335); ctx.stroke();
+        ctx.strokeStyle = '#D4B896'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(60, 340); ctx.lineTo(W - 60, 340); ctx.stroke();
 
-        // Sub text
-        ctx.fillStyle = '#AAAAAA'; ctx.font = '24px Arial'; ctx.textAlign = 'center';
-        ctx.fillText('Indoor Navigation Experience', W / 2, 375);
-        ctx.fillStyle = '#666'; ctx.font = '18px Arial';
-        ctx.fillText('Valid at Sunway Pyramid  •  Limited Time Offer', W / 2, 408);
+        // Description
+        ctx.fillStyle = '#7A6248'; ctx.font = '22px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('Indoor Navigation Experience', W / 2, 378);
+        ctx.fillStyle = '#AAA090'; ctx.font = '17px Arial';
+        ctx.fillText('Valid at Sunway Pyramid  •  Limited Time Offer', W / 2, 410);
 
         // Bottom CTA bar
-        ctx.fillStyle = barGrad; ctx.fillRect(4, H - 64, W - 8, 60);
-        ctx.fillStyle = '#1a1000'; ctx.font = 'bold 26px Arial';
-        ctx.fillText('▸  TAP TO CLAIM YOUR VOUCHER', W / 2, H - 22);
+        ctx.fillStyle = '#E8D5B0';
+        ctx.fillRect(3, H - 62, W - 6, 59);
+        ctx.fillStyle = '#7A5C2E'; ctx.font = 'bold 24px Arial';
+        ctx.fillText('Tap anywhere to claim', W / 2, H - 24);
 
-        // Apply via A-Frame's material system using data URL
         this.el.setAttribute('material', {
           src: canvas.toDataURL(),
           shader: 'flat',
@@ -355,48 +353,47 @@
     #voucher-success.show { display: flex; }
     .vs-bg {
       position: absolute; inset: 0;
-      background: rgba(0,0,0,0.88);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      background: rgba(60,40,20,0.55);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       animation: vsFadeIn 0.3s ease;
     }
     .vs-card {
       position: relative;
-      background: linear-gradient(145deg, #0d0d22 0%, #110d00 100%);
-      border: 2px solid #FFD700;
+      background: #FDFAF5;
+      border: 1.5px solid #D4B896;
       border-radius: 24px;
       padding: 44px 32px 36px;
       text-align: center;
       width: min(320px, 88vw);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       animation: vsSlideUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 0 60px rgba(255,215,0,0.25), 0 0 120px rgba(255,215,0,0.08);
+      box-shadow: 0 8px 40px rgba(100,70,30,0.18);
     }
     .vs-check {
-      width: 80px; height: 80px; border-radius: 50%;
-      background: linear-gradient(135deg, #996600, #FFD700);
-      color: #0d0d22; font-size: 42px; font-weight: 900;
+      width: 76px; height: 76px; border-radius: 50%;
+      background: #E8D5B0;
+      color: #7A5C2E; font-size: 38px; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 22px;
-      box-shadow: 0 4px 24px rgba(255,215,0,0.45);
+      margin: 0 auto 20px;
     }
-    .vs-title { color: #fff; font-size: 26px; font-weight: 700; margin: 0 0 18px; }
-    .vs-brand { color: #FFD700; font-size: 12px; letter-spacing: 2px; margin: 0 0 14px; }
+    .vs-title { color: #3D2B10; font-size: 24px; font-weight: 700; margin: 0 0 16px; }
+    .vs-brand { color: #A07840; font-size: 11px; letter-spacing: 2.5px; margin: 0 0 14px; text-transform: uppercase; }
     .vs-code {
-      background: rgba(255,215,0,0.1); border: 1px solid #FFD700;
-      border-radius: 10px; color: #FFD700;
-      font-size: 20px; font-weight: 700; font-family: monospace;
+      background: #F5ECD8; border: 1px solid #C9A96E;
+      border-radius: 10px; color: #7A5C2E;
+      font-size: 19px; font-weight: 700; font-family: monospace;
       letter-spacing: 3px; padding: 12px 20px; margin: 0 0 18px;
     }
-    .vs-desc { color: #BBBBBB; font-size: 15px; line-height: 1.65; margin: 0 0 6px; }
-    .vs-valid { color: #555; font-size: 12px; margin: 0 0 28px; }
+    .vs-desc { color: #7A6248; font-size: 15px; line-height: 1.65; margin: 0 0 6px; }
+    .vs-valid { color: #B0A090; font-size: 12px; margin: 0 0 28px; }
     .vs-done {
-      background: linear-gradient(135deg, #996600, #FFD700);
-      color: #0d0d22; border: none; border-radius: 50px;
-      padding: 15px 0; font-size: 16px; font-weight: 700;
-      cursor: pointer; width: 100%; letter-spacing: 0.5px;
-      transition: transform 0.15s;
+      background: #C9A96E;
+      color: #FDFAF5; border: none; border-radius: 50px;
+      padding: 15px 0; font-size: 16px; font-weight: 600;
+      cursor: pointer; width: 100%;
+      transition: transform 0.15s, background 0.15s;
     }
-    .vs-done:active { transform: scale(0.97); }
+    .vs-done:active { transform: scale(0.97); background: #B8946A; }
 
     @keyframes vsFadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes vsSlideUp {
