@@ -18,6 +18,26 @@
       }
     });
 
+    // Adjusts GLTF material metalness/roughness for bright AR appearance
+    AFRAME.registerComponent('gold-material', {
+      schema: { metalness: { default: 0.4 }, roughness: { default: 0.55 } },
+      init: function () {
+        const setup = () => {
+          this.el.object3D.traverse(node => {
+            if (!node.isMesh || !node.material) return;
+            const mats = Array.isArray(node.material) ? node.material : [node.material];
+            mats.forEach(m => {
+              m.metalness = this.data.metalness;
+              m.roughness = this.data.roughness;
+              m.needsUpdate = true;
+            });
+          });
+        };
+        if (this.el.getObject3D('mesh')) setup();
+        else this.el.addEventListener('model-loaded', setup, { once: true });
+      }
+    });
+
     // Clips a GLTF model below a given model-space Y, so only the head/bust shows
     AFRAME.registerComponent('clip-below', {
       schema: { modelY: { type: 'number', default: 4.0 } },
@@ -255,17 +275,18 @@
         scale="0.85 0.85 0.85"
         rotation="0 180 0"
         smooth-rotate="speed: 28"
+        gold-material="metalness: 0.4; roughness: 0.55"
         animation__bob="property: position; from: 0 0.55 0; to: 0 0.63 0; dir: alternate; dur: 2400; easing: easeInOutSine; loop: true"
       ></a-gltf-model>
 
-      <!-- Key light from above-front — bright to catch metallic gold -->
-      <a-light type="directional" color="#FFFFFF" intensity="5.0" position="1 4 3"></a-light>
-      <!-- Warm fill from left -->
-      <a-light type="directional" color="#FFD580" intensity="3.0" position="-3 1 2"></a-light>
-      <!-- Cool rim from behind -->
-      <a-light type="directional" color="#CCDDFF" intensity="1.5" position="0 2 -4"></a-light>
-      <!-- Strong ambient to lift all shadows -->
-      <a-light type="ambient" color="#FFFFFF" intensity="2.5"></a-light>
+      <!-- Studio wrap lighting: many sources from all angles, no harsh shadows -->
+      <a-light type="ambient" color="#FFF5E0" intensity="3.5"></a-light>
+      <a-light type="directional" color="#FFF8DC" intensity="2.5" position="0 3 3"></a-light>
+      <a-light type="directional" color="#FFE080" intensity="2.0" position="-3 2 2"></a-light>
+      <a-light type="directional" color="#FFE080" intensity="2.0" position="3 2 2"></a-light>
+      <a-light type="directional" color="#FFFFFF" intensity="1.5" position="-2 0 -3"></a-light>
+      <a-light type="directional" color="#FFFFFF" intensity="1.5" position="2 0 -3"></a-light>
+      <a-light type="directional" color="#FFF0C0" intensity="1.0" position="0 -2 1"></a-light>
 
       <!-- Floating gold orb -->
       <a-entity
