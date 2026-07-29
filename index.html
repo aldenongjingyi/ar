@@ -21,7 +21,7 @@
     // Draws a voucher card onto a canvas and applies it as a flat texture
     AFRAME.registerComponent('voucher-texture', {
       init: function () {
-        const W = 1024, H = 576;
+        const W = 1024, H = 512;
         const canvas = document.createElement('canvas');
         canvas.width = W; canvas.height = H;
         const ctx = canvas.getContext('2d');
@@ -38,53 +38,47 @@
         // Top gold bar
         const barGrad = ctx.createLinearGradient(0, 0, W, 0);
         barGrad.addColorStop(0, '#7a5000'); barGrad.addColorStop(0.5, '#FFD700'); barGrad.addColorStop(1, '#7a5000');
-        ctx.fillStyle = barGrad; ctx.fillRect(4, 4, W - 8, 56);
+        ctx.fillStyle = barGrad; ctx.fillRect(4, 4, W - 8, 52);
 
-        // Header text in bar
-        ctx.fillStyle = '#1a1000'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
-        ctx.fillText('MAP72  ×  SUNWAY PYRAMID', W / 2, 44);
+        // Header in bar
+        ctx.fillStyle = '#1a1000'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('MAP72  ×  SUNWAY PYRAMID', W / 2, 40);
 
         // Divider
-        ctx.strokeStyle = 'rgba(255,215,0,0.25)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(50, 78); ctx.lineTo(W - 50, 78); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,215,0,0.3)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(50, 70); ctx.lineTo(W - 50, 70); ctx.stroke();
 
-        // Label
-        ctx.fillStyle = '#FFD700'; ctx.font = '500 22px Arial';
-        ctx.fillText('✦   E X C L U S I V E   O F F E R   ✦', W / 2, 115);
+        // Exclusive label
+        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 20px Arial';
+        ctx.fillText('✦   E X C L U S I V E   O F F E R   ✦', W / 2, 105);
 
         // Big discount
-        ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 220px Arial'; ctx.textAlign = 'right';
-        ctx.fillText('20%', 580, 330);
-        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 110px Arial'; ctx.textAlign = 'left';
-        ctx.fillText('OFF', 610, 305);
+        ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 210px Arial'; ctx.textAlign = 'right';
+        ctx.fillText('20%', 570, 310);
+        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 100px Arial'; ctx.textAlign = 'left';
+        ctx.fillText('OFF', 600, 285);
 
         // Divider 2
-        ctx.strokeStyle = 'rgba(255,215,0,0.25)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(50, 370); ctx.lineTo(W - 50, 370); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,215,0,0.3)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(50, 335); ctx.lineTo(W - 50, 335); ctx.stroke();
 
         // Sub text
-        ctx.fillStyle = '#AAAAAA'; ctx.font = '26px Arial'; ctx.textAlign = 'center';
-        ctx.fillText('Indoor Navigation Experience', W / 2, 412);
-        ctx.fillStyle = '#666'; ctx.font = '19px Arial';
-        ctx.fillText('Valid at Sunway Pyramid  •  Limited Time Offer', W / 2, 445);
+        ctx.fillStyle = '#AAAAAA'; ctx.font = '24px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('Indoor Navigation Experience', W / 2, 375);
+        ctx.fillStyle = '#666'; ctx.font = '18px Arial';
+        ctx.fillText('Valid at Sunway Pyramid  •  Limited Time Offer', W / 2, 408);
 
-        // Bottom gold bar with CTA
-        ctx.fillStyle = barGrad; ctx.fillRect(4, H - 68, W - 8, 64);
-        ctx.fillStyle = '#1a1000'; ctx.font = 'bold 28px Arial';
-        ctx.fillText('▸  TAP TO CLAIM YOUR VOUCHER', W / 2, H - 26);
+        // Bottom CTA bar
+        ctx.fillStyle = barGrad; ctx.fillRect(4, H - 64, W - 8, 60);
+        ctx.fillStyle = '#1a1000'; ctx.font = 'bold 26px Arial';
+        ctx.fillText('▸  TAP TO CLAIM YOUR VOUCHER', W / 2, H - 22);
 
-        const texture = new THREE.CanvasTexture(canvas);
-        const apply = () => {
-          this.el.object3D.traverse(node => {
-            if (!node.isMesh) return;
-            node.material.map = texture;
-            node.material.transparent = false;
-            node.material.side = THREE.DoubleSide;
-            node.material.needsUpdate = true;
-          });
-        };
-        if (this.el.getObject3D('mesh')) apply();
-        else this.el.addEventListener('object3dset', apply, { once: true });
+        // Apply via A-Frame's material system using data URL
+        this.el.setAttribute('material', {
+          src: canvas.toDataURL(),
+          shader: 'flat',
+          side: 'double'
+        });
       }
     });
 
@@ -450,7 +444,7 @@
       <!-- Voucher card — canvas-drawn texture, tappable -->
       <a-plane
         class="tappable"
-        width="1.8" height="1.0125"
+        width="1.8" height="0.9"
         voucher-texture
         position="0 0 0.002"
         animation__pulse="property: scale; from: 1 1 1; to: 1.03 1.03 1; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"
@@ -458,7 +452,7 @@
 
       <!-- Subtle gold glow behind card -->
       <a-plane
-        width="1.95" height="1.1"
+        width="1.95" height="1.0"
         material="color: #FFD700; opacity: 0.08; transparent: true; shader: flat"
         position="0 0 -0.002"
         animation="property: material.opacity; from: 0.04; to: 0.16; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"
