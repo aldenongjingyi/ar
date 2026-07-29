@@ -435,31 +435,28 @@
         animation="property: position; to: 0 1.32 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine"
       ></a-entity>
 
+      <!-- Voucher button — floats below the lion head, tap to claim -->
+      <a-entity position="0 -0.28 0.05">
+        <!-- Button background -->
+        <a-plane
+          class="tappable"
+          width="0.72" height="0.22"
+          material="color: #FFD700; shader: flat; opacity: 0.95"
+          animation__pulse="property: scale; from: 1 1 1; to: 1.05 1.05 1; dir: alternate; dur: 1200; loop: true; easing: easeInOutSine"
+        ></a-plane>
+        <!-- Button label -->
+        <a-text
+          value="CLAIM VOUCHER"
+          color="#0d0d22"
+          width="1.2"
+          align="center"
+          position="0 0 0.005"
+          font="exo2bold"
+        ></a-text>
+      </a-entity>
+
     </a-entity>
     <!-- end lion target -->
-
-    <!-- AR target: voucher (targetIndex: 1) -->
-    <a-entity mindar-image-target="targetIndex: 1">
-
-      <!-- Voucher card — canvas-drawn texture, tappable -->
-      <a-plane
-        class="tappable"
-        width="1.8" height="0.9"
-        voucher-texture
-        position="0 0 0.002"
-        animation__pulse="property: scale; from: 1 1 1; to: 1.03 1.03 1; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"
-      ></a-plane>
-
-      <!-- Subtle gold glow behind card -->
-      <a-plane
-        width="1.95" height="1.0"
-        material="color: #FFD700; opacity: 0.08; transparent: true; shader: flat"
-        position="0 0 -0.002"
-        animation="property: material.opacity; from: 0.04; to: 0.16; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"
-      ></a-plane>
-
-    </a-entity>
-    <!-- end voucher target -->
 
   </a-scene>
 
@@ -486,11 +483,13 @@
       tryStart();
     }
 
-    // Voucher tap handler
+    // Voucher tap handler — fires on any .tappable entity click
     document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.tappable').forEach(el => {
-        el.addEventListener('click', () => {
-          document.getElementById('voucher-success').classList.add('show');
+      document.querySelector('a-scene').addEventListener('loaded', () => {
+        document.querySelectorAll('.tappable').forEach(el => {
+          el.addEventListener('click', () => {
+            document.getElementById('voucher-success').classList.add('show');
+          });
         });
       });
     });
