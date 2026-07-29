@@ -2,17 +2,18 @@ import { OfflineCompiler } from '/opt/homebrew/lib/node_modules/mind-ar/src/imag
 import { loadImage } from '/opt/homebrew/lib/node_modules/mind-ar/node_modules/canvas/index.js';
 import { writeFileSync } from 'fs';
 
-const QR_PATH = '/Users/alden/Documents/Work - Map72/AR HTML/qr-target.png';
+const QR1_PATH = '/Users/alden/Documents/Work - Map72/AR HTML/qr-target.png';
+const QR2_PATH = '/Users/alden/Documents/Work - Map72/AR HTML/qr-voucher.png';
 const OUT_PATH = '/Users/alden/Documents/Work - Map72/AR HTML/targets.mind';
 
-console.log('Loading QR image...');
-const img = await loadImage(QR_PATH);
-console.log(`Image loaded: ${img.width}x${img.height}`);
+console.log('Loading QR images...');
+const [img1, img2] = await Promise.all([loadImage(QR1_PATH), loadImage(QR2_PATH)]);
+console.log(`Images loaded: ${img1.width}x${img1.height}, ${img2.width}x${img2.height}`);
 
 const compiler = new OfflineCompiler();
 
-console.log('Compiling image target (this takes ~30s)...');
-await compiler.compileImageTargets([img], (progress) => {
+console.log('Compiling image targets (takes ~60s)...');
+await compiler.compileImageTargets([img1, img2], (progress) => {
   process.stdout.write(`\rProgress: ${progress.toFixed(1)}%   `);
 });
 

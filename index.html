@@ -18,6 +18,76 @@
       }
     });
 
+    // Draws a voucher card onto a canvas and applies it as a flat texture
+    AFRAME.registerComponent('voucher-texture', {
+      init: function () {
+        const W = 1024, H = 576;
+        const canvas = document.createElement('canvas');
+        canvas.width = W; canvas.height = H;
+        const ctx = canvas.getContext('2d');
+
+        // Background
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, '#0d0d22'); bg.addColorStop(1, '#110d00');
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+        // Gold outer border
+        ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 8;
+        ctx.strokeRect(4, 4, W - 8, H - 8);
+
+        // Top gold bar
+        const barGrad = ctx.createLinearGradient(0, 0, W, 0);
+        barGrad.addColorStop(0, '#7a5000'); barGrad.addColorStop(0.5, '#FFD700'); barGrad.addColorStop(1, '#7a5000');
+        ctx.fillStyle = barGrad; ctx.fillRect(4, 4, W - 8, 56);
+
+        // Header text in bar
+        ctx.fillStyle = '#1a1000'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('MAP72  ×  SUNWAY PYRAMID', W / 2, 44);
+
+        // Divider
+        ctx.strokeStyle = 'rgba(255,215,0,0.25)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(50, 78); ctx.lineTo(W - 50, 78); ctx.stroke();
+
+        // Label
+        ctx.fillStyle = '#FFD700'; ctx.font = '500 22px Arial';
+        ctx.fillText('✦   E X C L U S I V E   O F F E R   ✦', W / 2, 115);
+
+        // Big discount
+        ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 220px Arial'; ctx.textAlign = 'right';
+        ctx.fillText('20%', 580, 330);
+        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 110px Arial'; ctx.textAlign = 'left';
+        ctx.fillText('OFF', 610, 305);
+
+        // Divider 2
+        ctx.strokeStyle = 'rgba(255,215,0,0.25)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(50, 370); ctx.lineTo(W - 50, 370); ctx.stroke();
+
+        // Sub text
+        ctx.fillStyle = '#AAAAAA'; ctx.font = '26px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('Indoor Navigation Experience', W / 2, 412);
+        ctx.fillStyle = '#666'; ctx.font = '19px Arial';
+        ctx.fillText('Valid at Sunway Pyramid  •  Limited Time Offer', W / 2, 445);
+
+        // Bottom gold bar with CTA
+        ctx.fillStyle = barGrad; ctx.fillRect(4, H - 68, W - 8, 64);
+        ctx.fillStyle = '#1a1000'; ctx.font = 'bold 28px Arial';
+        ctx.fillText('▸  TAP TO CLAIM YOUR VOUCHER', W / 2, H - 26);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const apply = () => {
+          this.el.object3D.traverse(node => {
+            if (!node.isMesh) return;
+            node.material.map = texture;
+            node.material.transparent = false;
+            node.material.side = THREE.DoubleSide;
+            node.material.needsUpdate = true;
+          });
+        };
+        if (this.el.getObject3D('mesh')) apply();
+        else this.el.addEventListener('object3dset', apply, { once: true });
+      }
+    });
+
     // Adjusts GLTF material metalness/roughness for bright AR appearance
     AFRAME.registerComponent('gold-material', {
       schema: { metalness: { default: 0.4 }, roughness: { default: 0.55 } },
@@ -238,6 +308,64 @@
     }
 
     .mindar-ui-scanning .scanline { background: #754c24; }
+
+    /* ── Voucher success overlay ─────────────────────────── */
+    #voucher-success {
+      position: fixed; inset: 0; z-index: 9999;
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column;
+    }
+    #voucher-success.show { display: flex; }
+    .vs-bg {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      animation: vsFadeIn 0.3s ease;
+    }
+    .vs-card {
+      position: relative;
+      background: linear-gradient(145deg, #0d0d22 0%, #110d00 100%);
+      border: 2px solid #FFD700;
+      border-radius: 24px;
+      padding: 44px 32px 36px;
+      text-align: center;
+      width: min(320px, 88vw);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      animation: vsSlideUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 60px rgba(255,215,0,0.25), 0 0 120px rgba(255,215,0,0.08);
+    }
+    .vs-check {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, #996600, #FFD700);
+      color: #0d0d22; font-size: 42px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 22px;
+      box-shadow: 0 4px 24px rgba(255,215,0,0.45);
+    }
+    .vs-title { color: #fff; font-size: 26px; font-weight: 700; margin: 0 0 18px; }
+    .vs-brand { color: #FFD700; font-size: 12px; letter-spacing: 2px; margin: 0 0 14px; }
+    .vs-code {
+      background: rgba(255,215,0,0.1); border: 1px solid #FFD700;
+      border-radius: 10px; color: #FFD700;
+      font-size: 20px; font-weight: 700; font-family: monospace;
+      letter-spacing: 3px; padding: 12px 20px; margin: 0 0 18px;
+    }
+    .vs-desc { color: #BBBBBB; font-size: 15px; line-height: 1.65; margin: 0 0 6px; }
+    .vs-valid { color: #555; font-size: 12px; margin: 0 0 28px; }
+    .vs-done {
+      background: linear-gradient(135deg, #996600, #FFD700);
+      color: #0d0d22; border: none; border-radius: 50px;
+      padding: 15px 0; font-size: 16px; font-weight: 700;
+      cursor: pointer; width: 100%; letter-spacing: 0.5px;
+      transition: transform 0.15s;
+    }
+    .vs-done:active { transform: scale(0.97); }
+
+    @keyframes vsFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes vsSlideUp {
+      from { transform: translateY(60px) scale(0.9); opacity: 0; }
+      to   { transform: translateY(0)    scale(1);   opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -251,6 +379,20 @@
 
   <div id="scan-hint">Point camera at the MAP72 QR code</div>
 
+  <!-- Voucher claimed success screen -->
+  <div id="voucher-success">
+    <div class="vs-bg"></div>
+    <div class="vs-card">
+      <div class="vs-check">✓</div>
+      <p class="vs-brand">MAP72 × SUNWAY PYRAMID</p>
+      <h2 class="vs-title">Voucher Claimed!</h2>
+      <div class="vs-code">MAP72-SUNWAY-20</div>
+      <p class="vs-desc">20% off Indoor Navigation<br>Experience at Sunway Pyramid</p>
+      <p class="vs-valid">Valid until 31 Dec 2026 · Single use only</p>
+      <button class="vs-done" onclick="closeVoucher()">Done</button>
+    </div>
+  </div>
+
   <a-scene
     id="ar-scene"
     mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: yes; uiError: yes; uiScanning: yes; filterMinCF: 0.0001; filterBeta: 0.001;"
@@ -263,7 +405,10 @@
       <a-asset-item id="sunway-lion" src="sunway_lion.glb"></a-asset-item>
     </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-camera position="0 0 0" look-controls="enabled: false">
+      <a-entity cursor="fuse: false; rayOrigin: mouse"
+                raycaster="objects: .tappable; far: 20; interval: 100"></a-entity>
+    </a-camera>
 
     <!-- AR target: appears over the QR code -->
     <a-entity mindar-image-target="targetIndex: 0">
@@ -297,7 +442,30 @@
       ></a-entity>
 
     </a-entity>
-    <!-- end mindar-image-target -->
+    <!-- end lion target -->
+
+    <!-- AR target: voucher (targetIndex: 1) -->
+    <a-entity mindar-image-target="targetIndex: 1">
+
+      <!-- Voucher card — canvas-drawn texture, tappable -->
+      <a-plane
+        class="tappable"
+        width="1.8" height="1.0125"
+        voucher-texture
+        position="0 0 0.002"
+        animation__pulse="property: scale; from: 1 1 1; to: 1.03 1.03 1; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"
+      ></a-plane>
+
+      <!-- Subtle gold glow behind card -->
+      <a-plane
+        width="1.95" height="1.1"
+        material="color: #FFD700; opacity: 0.08; transparent: true; shader: flat"
+        position="0 0 -0.002"
+        animation="property: material.opacity; from: 0.04; to: 0.16; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"
+      ></a-plane>
+
+    </a-entity>
+    <!-- end voucher target -->
 
   </a-scene>
 
@@ -322,6 +490,19 @@
         }
       };
       tryStart();
+    }
+
+    // Voucher tap handler
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.tappable').forEach(el => {
+        el.addEventListener('click', () => {
+          document.getElementById('voucher-success').classList.add('show');
+        });
+      });
+    });
+
+    function closeVoucher() {
+      document.getElementById('voucher-success').classList.remove('show');
     }
 
     // Hide hint when target is found
