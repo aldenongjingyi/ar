@@ -303,6 +303,40 @@
 
     .mindar-ui-scanning .scanline { background: #754c24; }
 
+    #mode-toggle {
+      position: fixed;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      background: rgba(20,12,4,0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 50px;
+      padding: 5px;
+      gap: 4px;
+      z-index: 200;
+      border: 1px solid rgba(255,215,0,0.3);
+    }
+    #mode-toggle.visible { display: flex; }
+    .mode-btn {
+      padding: 10px 22px;
+      border-radius: 50px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .mode-btn.active {
+      background: #FFD700;
+      color: #0d0d22;
+    }
+
     /* ── Voucher success overlay ─────────────────────────── */
     #voucher-success {
       position: fixed; inset: 0; z-index: 9999;
@@ -373,6 +407,12 @@
 
   <div id="scan-hint">Point camera at the MAP72 QR code</div>
 
+  <!-- Mode toggle — shown after AR starts -->
+  <div id="mode-toggle">
+    <button id="btn-lion"    class="mode-btn active" onclick="setARMode('lion')">Lion Head</button>
+    <button id="btn-voucher" class="mode-btn"         onclick="setARMode('voucher')">Voucher</button>
+  </div>
+
   <!-- Voucher claimed success screen -->
   <div id="voucher-success">
     <div class="vs-bg"></div>
@@ -404,59 +444,59 @@
                 raycaster="objects: .tappable; far: 20; interval: 100"></a-entity>
     </a-camera>
 
-    <!-- AR target: appears over the QR code -->
+    <!-- AR target: same QR, two modes toggled by the UI switch -->
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <!-- Golden lion head bust (free_golden_lion_head_sculpture, CC-BY TahmidTauz) -->
-      <a-gltf-model
-        src="#sunway-lion"
-        position="0 0.55 0"
-        scale="0.85 0.85 0.85"
-        rotation="0 180 0"
-        smooth-rotate="speed: 28"
-        gold-material="metalness: 0.4; roughness: 0.55"
-        animation__bob="property: position; from: 0 0.55 0; to: 0 0.63 0; dir: alternate; dur: 2400; easing: easeInOutSine; loop: true"
-      ></a-gltf-model>
+      <!-- MODE 1: Lion head (default) -->
+      <a-entity id="lion-group">
+        <a-gltf-model
+          src="#sunway-lion"
+          position="0 0.55 0"
+          scale="0.85 0.85 0.85"
+          rotation="0 180 0"
+          smooth-rotate="speed: 28"
+          gold-material="metalness: 0.4; roughness: 0.55"
+          animation__bob="property: position; from: 0 0.55 0; to: 0 0.63 0; dir: alternate; dur: 2400; easing: easeInOutSine; loop: true"
+        ></a-gltf-model>
 
-      <!-- Studio wrap lighting: many sources from all angles, no harsh shadows -->
-      <a-light type="ambient" color="#FFF5E0" intensity="3.5"></a-light>
-      <a-light type="directional" color="#FFF8DC" intensity="2.5" position="0 3 3"></a-light>
-      <a-light type="directional" color="#FFE080" intensity="2.0" position="-3 2 2"></a-light>
-      <a-light type="directional" color="#FFE080" intensity="2.0" position="3 2 2"></a-light>
-      <a-light type="directional" color="#FFFFFF" intensity="1.5" position="-2 0 -3"></a-light>
-      <a-light type="directional" color="#FFFFFF" intensity="1.5" position="2 0 -3"></a-light>
-      <a-light type="directional" color="#FFF0C0" intensity="1.0" position="0 -2 1"></a-light>
+        <a-light type="ambient" color="#FFF5E0" intensity="3.5"></a-light>
+        <a-light type="directional" color="#FFF8DC" intensity="2.5" position="0 3 3"></a-light>
+        <a-light type="directional" color="#FFE080" intensity="2.0" position="-3 2 2"></a-light>
+        <a-light type="directional" color="#FFE080" intensity="2.0" position="3 2 2"></a-light>
+        <a-light type="directional" color="#FFFFFF" intensity="1.5" position="-2 0 -3"></a-light>
+        <a-light type="directional" color="#FFFFFF" intensity="1.5" position="2 0 -3"></a-light>
+        <a-light type="directional" color="#FFF0C0" intensity="1.0" position="0 -2 1"></a-light>
 
-      <!-- Floating gold orb -->
-      <a-entity
-        geometry="primitive: sphere; radius: 0.04"
-        material="color: #FFD700; emissive: #FFD700; emissiveIntensity: 1"
-        position="0 1.2 0"
-        animation="property: position; to: 0 1.32 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine"
-      ></a-entity>
+        <a-entity
+          geometry="primitive: sphere; radius: 0.04"
+          material="color: #FFD700; emissive: #FFD700; emissiveIntensity: 1"
+          position="0 1.2 0"
+          animation="property: position; to: 0 1.32 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine"
+        ></a-entity>
+      </a-entity>
 
-      <!-- Voucher button — floats below the lion head, tap to claim -->
-      <a-entity position="0 -0.28 0.05">
-        <!-- Button background -->
+      <!-- MODE 2: Voucher card (hidden until toggled) -->
+      <a-entity id="voucher-group" visible="false">
+        <!-- Glow behind card -->
         <a-plane
-          class="tappable"
-          width="0.72" height="0.22"
-          material="color: #FFD700; shader: flat; opacity: 0.95"
-          animation__pulse="property: scale; from: 1 1 1; to: 1.05 1.05 1; dir: alternate; dur: 1200; loop: true; easing: easeInOutSine"
+          width="1.95" height="1.0"
+          material="color: #FFD700; opacity: 0.1; transparent: true; shader: flat"
+          position="0 0 -0.003"
+          animation="property: material.opacity; from: 0.05; to: 0.18; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"
         ></a-plane>
-        <!-- Button label -->
-        <a-text
-          value="CLAIM VOUCHER"
-          color="#0d0d22"
-          width="1.2"
-          align="center"
-          position="0 0 0.005"
-          font="exo2bold"
-        ></a-text>
+        <!-- Voucher card — tappable -->
+        <a-plane
+          id="voucher-plane"
+          class="tappable"
+          width="1.8" height="0.9"
+          voucher-texture
+          position="0 0 0.002"
+          animation__pulse="property: scale; from: 1 1 1; to: 1.03 1.03 1; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"
+        ></a-plane>
       </a-entity>
 
     </a-entity>
-    <!-- end lion target -->
+    <!-- end AR target -->
 
   </a-scene>
 
@@ -483,29 +523,38 @@
       tryStart();
     }
 
-    // Voucher tap handler — fires on any .tappable entity click
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelector('a-scene').addEventListener('loaded', () => {
-        document.querySelectorAll('.tappable').forEach(el => {
-          el.addEventListener('click', () => {
-            document.getElementById('voucher-success').classList.add('show');
-          });
-        });
-      });
-    });
+    function setARMode(mode) {
+      document.getElementById('lion-group').setAttribute('visible', mode === 'lion');
+      document.getElementById('voucher-group').setAttribute('visible', mode === 'voucher');
+      document.getElementById('btn-lion').classList.toggle('active', mode === 'lion');
+      document.getElementById('btn-voucher').classList.toggle('active', mode === 'voucher');
+    }
 
     function closeVoucher() {
       document.getElementById('voucher-success').classList.remove('show');
     }
 
-    // Hide hint when target is found
     document.addEventListener('DOMContentLoaded', () => {
       const scene = document.getElementById('ar-scene');
+      const toggle = document.getElementById('mode-toggle');
+
+      // Show toggle + hide scan hint when target locked
       scene.addEventListener('targetFound', () => {
         document.getElementById('scan-hint').style.display = 'none';
+        toggle.classList.add('visible');
       });
       scene.addEventListener('targetLost', () => {
         document.getElementById('scan-hint').style.display = 'block';
+        toggle.classList.remove('visible');
+      });
+
+      // Voucher tap → success screen
+      scene.addEventListener('loaded', () => {
+        document.querySelectorAll('.tappable').forEach(el => {
+          el.addEventListener('click', () => {
+            document.getElementById('voucher-success').classList.add('show');
+          });
+        });
       });
     });
   </script>
