@@ -248,34 +248,31 @@
     <!-- AR target: appears over the QR code -->
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <!-- Sunway Pyramid lion head (AI-generated from real photo) -->
-      <!-- Crop to head: model Y head centre ≈ 5.88, at scale 0.32 → AR 1.88
-           Pull down by -1.88 so head sits at y≈0 above QR -->
+      <!-- Golden lion head bust (free_golden_lion_head_sculpture, CC-BY TahmidTauz) -->
       <a-gltf-model
         src="#sunway-lion"
-        position="0 -1.88 0"
-        scale="0.32 0.32 0.32"
+        position="0 0.55 0"
+        scale="0.85 0.85 0.85"
         rotation="0 180 0"
         smooth-rotate="speed: 28"
-        clip-below="modelY: 4.0"
-        animation__bob="property: position; from: 0 -1.88 0; to: 0 -1.82 0; dir: alternate; dur: 2400; easing: easeInOutSine; loop: true"
+        animation__bob="property: position; from: 0 0.55 0; to: 0 0.63 0; dir: alternate; dur: 2400; easing: easeInOutSine; loop: true"
       ></a-gltf-model>
 
-      <!-- Sun-like key light from above-front -->
-      <a-light type="directional" color="#FFF8EC" intensity="2.5" position="1 5 4" shadow="cast: true"></a-light>
-      <!-- Fill from side -->
-      <a-light type="directional" color="#F5DEB3" intensity="1.2" position="-3 2 1" shadow="cast: true"></a-light>
-      <!-- Rim to pick out mane edges -->
-      <a-light type="spot" color="#FFE4B5" intensity="1.0" position="0 4 -5" angle="45" shadow="cast: true"></a-light>
-      <!-- Warm sandy ambient -->
-      <a-light type="ambient" color="#D2B48C" intensity="0.9"></a-light>
+      <!-- Key light from above-front — bright to catch metallic gold -->
+      <a-light type="directional" color="#FFFAEE" intensity="3.5" position="1 4 3"></a-light>
+      <!-- Warm fill from left -->
+      <a-light type="directional" color="#FFD580" intensity="1.8" position="-3 1 2"></a-light>
+      <!-- Cool rim from behind to separate from background -->
+      <a-light type="directional" color="#AACCFF" intensity="0.8" position="0 2 -4"></a-light>
+      <!-- Ambient to lift shadows -->
+      <a-light type="ambient" color="#FFE8B0" intensity="1.2"></a-light>
 
       <!-- Floating gold orb -->
       <a-entity
         geometry="primitive: sphere; radius: 0.04"
         material="color: #FFD700; emissive: #FFD700; emissiveIntensity: 1"
-        position="0 0.6 0"
-        animation="property: position; to: 0 0.72 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine"
+        position="0 1.2 0"
+        animation="property: position; to: 0 1.32 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine"
       ></a-entity>
 
     </a-entity>
